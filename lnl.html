@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>晚风说给你听</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #f0f4f8;
+            overflow: hidden;
+            font-family: "微软雅黑", sans-serif;
+            height: 100vh;
+            width: 100vw;
+        }
+        .note {
+            position: fixed;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 15px;
+            color: white;
+            font-weight: 500;
+            z-index: 9999;
+            pointer-events: none;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            animation: breathe 1s ease-in-out infinite alternate;
+        }
+        @keyframes breathe {
+            from { opacity: 0.85; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <script>
+        // 阶段状态标记，严格区分飘字/爱心阶段
+        let isStage2 = false;
+
+        // 统一文案库
+        const texts = [
+            "喜欢你很久了", "晚风也温柔了", "梦里有你真好", "萌萌哒",
+            "想你成习惯了", "世界因你柔软", "每次见你都心动", "你眼里有星星",
+            "宇宙都在偏爱你", "今夜的梦给你", "心跳为你加速", "你的温柔让我沦陷",
+            "所有浪漫都与你有关", "想和你散步", "星光都为你闪", "遇见你是浪漫的开始",
+            "好想抱抱你", "你是人间的奇迹", "永远爱你", "我的宝贝","一起去看橘子海"
+        ];
+        // 渐变配色库
+        const gradients = [
+            'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+            'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+            'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+            'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+            'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+            'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
+            'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+            'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
+            'linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%)'
+        ];
+
+        // 阶段一：满屏随机飘字
+        function stage1() {
+            for (let i = 0; i < 100; i++) {
+                setTimeout(() => {
+                    if (isStage2) return;
+
+                    const note = document.createElement('div');
+                    note.className = 'note';
+                    note.textContent = texts[Math.floor(Math.random() * texts.length)];
+                    note.style.background = gradients[Math.floor(Math.random() * gradients.length)];
+                    
+                    let x = Math.random() * (window.innerWidth - 200);
+                    let y = Math.random() * (window.innerHeight - 50);
+                    note.style.left = x + 'px';
+                    note.style.top = y + 'px';
+                    
+                    let dx = (Math.random() - 0.5) * 6;
+                    let dy = (Math.random() - 0.5) * 7;
+                    
+                    document.body.appendChild(note);
+                    
+                    function move() {
+                        if (isStage2) return;
+
+                        x += dx;
+                        y += dy;
+                        if (x < 0 || x > window.innerWidth - 200) dx = -dx;
+                        if (y < 0 || y > window.innerHeight - 50) dy = -dy * 0.9;
+                        note.style.left = x + 'px';
+                        note.style.top = y + 'px';
+                        requestAnimationFrame(move);
+                    }
+                    move();
+                }, i * 25);
+            }
+        }
+
+        // 阶段二：文字排列成爱心（最后一个文字固定）
+        function stage2() {
+            isStage2 = true;
+            document.querySelectorAll('.note').forEach(el => el.remove());
+
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+            const scale = Math.min(screenWidth, screenHeight) / 45; 
+            const centerX = screenWidth / 2;
+            const centerY = screenHeight / 2;
+            
+            // 总共有220个文字，最后一个索引是 220-1=219
+            const totalCount = 220;
+            for (let i = 0; i < totalCount; i++) {
+                setTimeout(() => {
+                    const t = i / totalCount * Math.PI * 2;
+                    const x = centerX + scale * 16 * Math.pow(Math.sin(t), 3);
+                    const yBase = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+                    const y = centerY - scale * yBase;
+                    
+                    const note = document.createElement('div');
+                    note.className = 'note';
+                    
+         
+                    // 最后一个文字固定为「喜欢你很久了」，其余保持随机
+                    if (i === totalCount - 1) {
+                        note.textContent = "喜欢你很久了";
+                    } else {
+                        note.textContent = texts[Math.floor(Math.random() * texts.length)];
+                    }
+                    // ======================================================
+
+                    note.style.background = gradients[Math.floor(Math.random() * gradients.length)];
+                    note.style.left = x + 'px';
+                    note.style.top = y + 'px';
+                    note.style.zIndex = 9999;
+                    
+                    document.body.appendChild(note);
+                }, i * 99);
+            }
+        }
+
+        // 严格控制执行顺序
+        window.onload = () => {
+            stage1();
+            setTimeout(stage2, 12000);
+        };
+
+        // 窗口缩放适配
+        window.onresize = () => {
+            if (isStage2) {
+                stage2();
+            }
+        };
+    </script>
+</body>
+</html>
